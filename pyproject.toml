@@ -49,6 +49,9 @@ Issues = "https://github.com/kayrademirkan/opencrypto/issues"
 include = ["opencrypto*"]
 exclude = ["private_strategy*", "backend*", "tests*", "examples*"]
 
+[tool.setuptools.package-data]
+opencrypto = ["py.typed"]
+
 # ── Testing ─────────────────────────────────────────────────────────
 
 [tool.pytest.ini_options]

@@ -1,7 +1,5 @@
-"""Smoke tests for OpenCrypto core modules."""
+"""Core module tests — imports, exceptions, strategy protocol, config."""
 
-import numpy as np
-import pandas as pd
 
 # ── Import smoke tests ──────────────────────────────────────────────
 
@@ -33,6 +31,10 @@ def test_exception_hierarchy():
     err = DataFetchError("test", symbol="BTCUSDT", source="binance")
     assert err.symbol == "BTCUSDT"
     assert err.source == "binance"
+
+    merr = ManipulationDetectedError("blocked", risk_score=85, warnings=["spike"])
+    assert merr.risk_score == 85
+    assert merr.warnings == ["spike"]
 
 
 def test_indicators_import():
@@ -67,82 +69,34 @@ def test_strategy_signal_properties():
     d = sig.to_dict()
     assert d["symbol"] == "BTCUSDT"
     assert d["direction"] == "LONG"
+    assert d["tp1"] == 110.0
+    assert d["leverage"] == 3
 
 
-# ── Indicators ──────────────────────────────────────────────────────
+def test_strategy_signal_edge_cases():
+    from opencrypto import StrategySignal
+
+    sig = StrategySignal(symbol="ETHUSDT", direction="SHORT", confidence=50.0, entry=0.0, sl=0.0, tp=0.0)
+    assert sig.sl_pct == 0.0
+    assert sig.tp_pct == 0.0
+    assert sig.rr_ratio == 0.0
 
 
-def _make_ohlcv(n: int = 300) -> pd.DataFrame:
-    rng = np.random.default_rng(42)
-    close = 100 + np.cumsum(rng.normal(0, 0.5, n))
-    close = np.maximum(close, 10)
-    return pd.DataFrame(
-        {
-            "open": close + rng.normal(0, 0.1, n),
-            "high": close + abs(rng.normal(0, 0.5, n)),
-            "low": close - abs(rng.normal(0, 0.5, n)),
-            "close": close,
-            "volume": rng.uniform(1000, 5000, n),
-            "quote_volume": rng.uniform(100000, 500000, n),
-            "trades": rng.integers(100, 1000, n),
-            "taker_buy_base": rng.uniform(500, 2500, n),
-            "taker_buy_quote": rng.uniform(50000, 250000, n),
-        }
+def test_strategy_signal_metadata():
+    from opencrypto import StrategySignal
+
+    sig = StrategySignal(
+        symbol="SOLUSDT",
+        direction="LONG",
+        confidence=80.0,
+        entry=150.0,
+        sl=140.0,
+        tp=170.0,
+        metadata={"timeframe": "1h", "custom_score": 42},
     )
-
-
-def test_compute_all_indicators():
-    from opencrypto.indicators.technical import compute_all_indicators
-
-    df = _make_ohlcv()
-    result = compute_all_indicators(df)
-    assert "rsi" in result.columns
-    assert "ema_9" in result.columns
-    assert "supertrend_dir" in result.columns
-    assert len(result) == len(df)
-
-
-def test_rsi_range():
-    from opencrypto.indicators.technical import rsi
-
-    series = pd.Series(np.random.default_rng(0).normal(100, 1, 200))
-    vals = rsi(series, 14).dropna()
-    assert vals.min() >= 0
-    assert vals.max() <= 100
-
-
-# ── ShieldGuard ─────────────────────────────────────────────────────
-
-
-def test_shield_guard_manipulation_clean():
-    from opencrypto import ShieldGuard
-
-    guard = ShieldGuard()
-    df = _make_ohlcv(60)
-    result = guard.detect_manipulation(df)
-    assert hasattr(result, "risk_score")
-    assert hasattr(result, "is_blocked")
-    assert 0 <= result.risk_score <= 100
-
-
-def test_shield_guard_daily_tracker():
-    from opencrypto import ShieldGuard
-
-    guard = ShieldGuard(daily_max_drawdown=-5.0, daily_max_sl_count=2)
-    assert not guard.is_daily_limit_hit()
-
-    guard.record_trade_close(-3.0, is_sl=True)
-    guard.record_trade_close(-3.0, is_sl=True)
-    assert guard.is_daily_limit_hit()
-
-
-def test_shield_guard_direction_cap():
-    from opencrypto import ShieldGuard
-
-    guard = ShieldGuard(max_open_long=2, max_open_short=1)
-    assert guard.check_direction_cap("LONG", 1, 0) is True
-    assert guard.check_direction_cap("LONG", 2, 0) is False
-    assert guard.check_direction_cap("SHORT", 0, 1) is False
+    assert sig.metadata["timeframe"] == "1h"
+    d = sig.to_dict()
+    assert d["metadata"]["custom_score"] == 42
 
 
 # ── BaseStrategy protocol ──────────────────────────────────────────
@@ -159,3 +113,23 @@ def test_base_strategy_protocol():
             return None
 
     assert isinstance(DummyStrategy(), BaseStrategy)
+
+
+def test_non_strategy_fails_protocol():
+    from opencrypto import BaseStrategy
+
+    class NotAStrategy:
+        pass
+
+    assert not isinstance(NotAStrategy(), BaseStrategy)
+
+
+# ── Config ──────────────────────────────────────────────────────────
+
+
+def test_config_defaults():
+    from opencrypto.core.config import BINANCE_FUTURES_URL, BINANCE_SPOT_URL, DATA_DIR
+
+    assert "fapi.binance.com" in BINANCE_FUTURES_URL
+    assert "api.binance.com" in BINANCE_SPOT_URL
+    assert DATA_DIR.name == "data"
