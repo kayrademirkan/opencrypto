@@ -37,7 +37,8 @@ git checkout -b feat/my-feature main
 
 ```bash
 pytest tests/ -v
-flake8 opencrypto/ --max-line-length=120
+ruff check opencrypto/ tests/
+ruff format --check opencrypto/ tests/
 ```
 
 4. **Update documentation** if your change adds or modifies public API.
@@ -56,15 +57,15 @@ docs: improve DataBridge docstrings
 
 - [ ] Branch is up to date with `main`.
 - [ ] All tests pass (`pytest tests/ -v`).
-- [ ] No new linting errors (`flake8`).
+- [ ] No new linting errors (`ruff check`).
 - [ ] Public functions have docstrings and type hints.
 - [ ] PR description explains *what* changed and *why*.
 
 ## Code Style
 
-- **Formatting**: 4-space indentation, 120-character line limit.
-- **Imports**: stdlib → third-party → local, separated by blank lines.
-- **Type hints**: Required on all public function signatures.
+- **Linter/Formatter**: [Ruff](https://docs.astral.sh/ruff/) handles both — config lives in `pyproject.toml`.
+- **Imports**: stdlib → third-party → local, auto-sorted by `ruff format`.
+- **Type hints**: Required on all public function signatures. Checked by `mypy`.
 - **Docstrings**: Google style for public APIs.
 - **Logging**: Use `logging.getLogger(__name__)` — never `print()`.
 

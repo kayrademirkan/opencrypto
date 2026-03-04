@@ -18,19 +18,17 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
-from typing import Any, Optional
+from datetime import UTC, datetime, timedelta
 
+import httpx
 import numpy as np
 import pandas as pd
-import httpx
 
 from opencrypto.core.base_strategy import BaseStrategy, StrategySignal
-from opencrypto.core.exceptions import BacktestError, DataFetchError
-from opencrypto.indicators.technical import compute_all_indicators
-from opencrypto.core.shield_guard import ShieldGuard
-from opencrypto.core.data_bridge import DataBridge
 from opencrypto.core.config import DATA_DIR
+from opencrypto.core.data_bridge import DataBridge
+from opencrypto.core.shield_guard import ShieldGuard
+from opencrypto.indicators.technical import compute_all_indicators
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +51,9 @@ class Trade:
     sl_original: float = 0.0
     tp: float = 0.0
     ttl_bars: int = 72
-    exit_time: Optional[str] = None
-    exit_price: Optional[float] = None
-    exit_reason: Optional[str] = None
+    exit_time: str | None = None
+    exit_price: float | None = None
+    exit_reason: str | None = None
     sl_moved_to_be: bool = False
     sl_locked_profit: bool = False
     peak_price: float = 0.0
@@ -394,8 +392,8 @@ def calc_stats(trades: list[Trade], engine: BacktestEngine) -> dict:
 async def fetch_historical(symbol: str, interval: str = "1h",
                            days: int = 30) -> pd.DataFrame:
     all_data = []
-    end_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
-    start_ms = int((datetime.now(timezone.utc) - timedelta(days=days)).timestamp() * 1000)
+    end_ms = int(datetime.now(UTC).timestamp() * 1000)
+    start_ms = int((datetime.now(UTC) - timedelta(days=days)).timestamp() * 1000)
     clean = symbol.replace(".P", "").upper()
 
     async with httpx.AsyncClient(timeout=30) as client:
@@ -454,7 +452,7 @@ async def run_backtest(
     save: bool = True,
 ) -> dict:
     """Run full backtest with any strategy."""
-    t0 = datetime.now(timezone.utc)
+    t0 = datetime.now(UTC)
 
     logger.info("Backtest started — %s v%s", strategy.name, strategy.version)
     logger.info(
@@ -494,7 +492,7 @@ async def run_backtest(
             break
         await asyncio.sleep(0.3)
 
-    t1 = datetime.now(timezone.utc)
+    t1 = datetime.now(UTC)
     elapsed = (t1 - t0).total_seconds()
 
     if not engine.results:

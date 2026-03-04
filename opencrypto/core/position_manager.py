@@ -10,12 +10,12 @@ Trade lifecycle management: open, track, trail, close.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
-import asyncio
-from datetime import datetime, timezone
-from typing import Optional, Callable, Awaitable
+from collections.abc import Awaitable, Callable
+from datetime import UTC, datetime
 
 import httpx
 
@@ -56,9 +56,9 @@ class PositionManager:
         if not os.path.exists(self.trades_file):
             return []
         try:
-            with open(self.trades_file, "r", encoding="utf-8") as f:
+            with open(self.trades_file, encoding="utf-8") as f:
                 return json.load(f)
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             return []
 
     def _save_trades(self, trades: list[dict]):
@@ -69,7 +69,7 @@ class PositionManager:
     def has_open_trade(self, symbol: str) -> bool:
         """Check if symbol has an open trade or was closed within 2h."""
         trades = self._load_trades()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for t in trades:
             if t["symbol"] != symbol:
                 continue
@@ -93,7 +93,7 @@ class PositionManager:
             if t["symbol"] == signal["symbol"] and t["status"] == "open":
                 return t
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         entry = signal["entry"]
         sl = signal["sl"]
         tp = signal.get("tp1", signal.get("tp", entry))
@@ -144,7 +144,7 @@ class PositionManager:
             return trade
 
         trade["current_price"] = current_price
-        trade["last_checked"] = datetime.now(timezone.utc).isoformat()
+        trade["last_checked"] = datetime.now(UTC).isoformat()
 
         entry = trade["entry"]
         is_long = trade["direction"] == "LONG"
@@ -153,16 +153,14 @@ class PositionManager:
         if trade.get("opened_at"):
             try:
                 opened_dt = datetime.fromisoformat(trade["opened_at"])
-                age_hours = (datetime.now(timezone.utc) - opened_dt).total_seconds() / 3600
+                age_hours = (datetime.now(UTC) - opened_dt).total_seconds() / 3600
                 if is_long:
                     timeout_pnl = (current_price - entry) / entry * 100
                 else:
                     timeout_pnl = (entry - current_price) / entry * 100
 
                 should_timeout = False
-                if age_hours >= self.max_position_age_hours and timeout_pnl < 0.5:
-                    should_timeout = True
-                elif age_hours >= self.deep_loss_timeout_hours and timeout_pnl <= self.deep_loss_threshold:
+                if (age_hours >= self.max_position_age_hours and timeout_pnl < 0.5) or (age_hours >= self.deep_loss_timeout_hours and timeout_pnl <= self.deep_loss_threshold):
                     should_timeout = True
 
                 if should_timeout:
@@ -174,7 +172,7 @@ class PositionManager:
                     trade["pnl_r"] = round(pnl_r, 4)
                     trade["status"] = "sl"
                     trade["close_reason"] = f"timeout_{int(age_hours)}h"
-                    trade["closed_at"] = datetime.now(timezone.utc).isoformat()
+                    trade["closed_at"] = datetime.now(UTC).isoformat()
                     if self.on_trade_close:
                         self.on_trade_close(timeout_pnl, True)
                     return trade
@@ -238,7 +236,7 @@ class PositionManager:
             trade["current_price"] = tp
             trade["status"] = "tp"
             trade["close_reason"] = "tp_hit"
-            trade["closed_at"] = datetime.now(timezone.utc).isoformat()
+            trade["closed_at"] = datetime.now(UTC).isoformat()
 
         # SL check
         sl_hit = (current_price <= sl) if is_long else (current_price >= sl)
@@ -253,7 +251,7 @@ class PositionManager:
             trade["pnl_pct"] = round(pnl_pct, 2)
             trade["current_price"] = sl
             trade["status"] = "sl"
-            trade["closed_at"] = datetime.now(timezone.utc).isoformat()
+            trade["closed_at"] = datetime.now(UTC).isoformat()
             if pnl_r > 0.1:
                 trade["close_reason"] = "trailing_profit"
             elif pnl_r >= -0.1:

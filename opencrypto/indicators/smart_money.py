@@ -13,7 +13,9 @@ import numpy as np
 import pandas as pd
 
 from opencrypto.indicators.technical import (
-    ema, rsi, supertrend, atr,
+    ema,
+    rsi,
+    supertrend,
 )
 
 
@@ -72,7 +74,6 @@ def detect_order_blocks(df: pd.DataFrame, lookback: int = 30) -> list[dict]:
         return blocks
     window = df.iloc[-lookback:]
     vol_mean = window["volume"].mean()
-    current_close = float(df["close"].iloc[-1])
     for i in range(2, len(window) - 2):
         body = abs(window["close"].iloc[i] - window["open"].iloc[i])
         prev_body = abs(window["close"].iloc[i - 1] - window["open"].iloc[i - 1])
@@ -326,7 +327,6 @@ def detect_fakeout(df):
     prev_low = float(prev["low"].min())
     avg_vol = float(prev["volume"].mean())
     lc = float(last["close"])
-    lo = float(last["open"])
     lh = float(last["high"])
     ll = float(last["low"])
     if lh > prev_high and lc < prev_high:

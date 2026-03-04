@@ -8,7 +8,6 @@ Requires TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 import httpx
 

@@ -9,13 +9,9 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Optional
 
 import httpx
 import pandas as pd
-import numpy as np
-
-from opencrypto.core.exceptions import DataFetchError
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +129,7 @@ class DataBridge:
         """Fetch 4-hour klines for multi-timeframe analysis."""
         return await self.fetch_klines(symbol, "4h", limit)
 
-    async def get_current_price(self, symbol: str) -> Optional[float]:
+    async def get_current_price(self, symbol: str) -> float | None:
         """Get latest price for a symbol."""
         client = await _get_client()
         clean = symbol.replace(".P", "").upper()

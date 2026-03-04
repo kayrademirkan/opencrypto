@@ -42,11 +42,11 @@ It was extracted from a private trading system with an **85.5% win rate** across
 pip install git+https://github.com/kayrademirkan/opencrypto.git
 ```
 
-Or clone and install locally:
+Or clone and install in editable mode:
 
 ```bash
 git clone https://github.com/kayrademirkan/opencrypto.git
-cd open-crypto
+cd opencrypto
 pip install -e .
 ```
 
@@ -304,11 +304,13 @@ USE_LLM=true
 
 ## Plugins
 
-| Plugin | Purpose | Dependency |
-|--------|---------|------------|
+| Plugin | Purpose | Requirement |
+|--------|---------|-------------|
 | `plugins.telegram` | Send signals to Telegram | `TELEGRAM_BOT_TOKEN` in .env |
-| `plugins.charts` | Generate candlestick PNGs | `pip install opencrypto[charts]` |
-| `plugins.llm` | AI trade commentary | `pip install opencrypto[llm]` + `GROQ_API_KEY` |
+| `plugins.charts` | Generate candlestick PNGs | `pip install -e ".[charts]"` |
+| `plugins.llm` | AI trade commentary | `pip install -e ".[llm]"` + `GROQ_API_KEY` |
+
+> Install all optional plugins at once: `pip install -e ".[all]"`
 
 ```python
 # Telegram

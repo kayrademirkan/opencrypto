@@ -32,7 +32,13 @@ charts = ["matplotlib>=3.8", "mplfinance>=0.12"]
 telegram = []
 llm = ["groq>=0.11"]
 all = ["matplotlib>=3.8", "mplfinance>=0.12", "groq>=0.11"]
-dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "black>=24.0", "flake8>=7.0", "mypy>=1.8"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pandas-stubs>=2.1",
+]
 
 [project.urls]
 Homepage = "https://github.com/kayrademirkan/opencrypto"
@@ -41,16 +47,68 @@ Issues = "https://github.com/kayrademirkan/opencrypto/issues"
 
 [tool.setuptools.packages.find]
 include = ["opencrypto*"]
-exclude = ["private_strategy*", "backend*", "tests*"]
+exclude = ["private_strategy*", "backend*", "tests*", "examples*"]
+
+# ── Testing ─────────────────────────────────────────────────────────
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 
-[tool.black]
+# ── Ruff (linter + formatter — replaces flake8, isort, black) ──────
+
+[tool.ruff]
+target-version = "py311"
 line-length = 120
-target-version = ["py311"]
+src = ["opencrypto", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long — formatter handles this
+    "E701",   # multiple statements on one line (colon) — used in compact indicator logic
+    "E702",   # multiple statements on one line (semicolon) — same as above
+    "B008",   # function call in default argument — common in dataclasses
+    "SIM108", # ternary operator — readability preference
+    "UP007",  # X | Y union syntax — keep Optional for clarity
+    "N802",   # function name lowercase — allow indicator names like RSI
+    "N803",   # argument name lowercase — allow df, SL, TP
+    "N806",   # variable in function uppercase — allow LONG, SHORT
+    "SIM103", # needless-bool — explicit returns are clearer in risk checks
+    "RUF001", # ambiguous unicode — Turkish text in telegram plugin
+    "TCH",    # type-checking imports — runtime Protocol needs real imports
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # re-exports in package init files
+
+[tool.ruff.lint.isort]
+known-first-party = ["opencrypto"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+# ── MyPy (static type checking) ────────────────────────────────────
 
 [tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
 ignore_missing_imports = true
-strict = false
+check_untyped_defs = true
+no_implicit_optional = true
+show_error_codes = true

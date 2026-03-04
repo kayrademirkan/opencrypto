@@ -1,11 +1,8 @@
 """Smoke tests for OpenCrypto core modules."""
 
-import importlib
 
 import numpy as np
 import pandas as pd
-import pytest
-
 
 # ── Import smoke tests ──────────────────────────────────────────────
 
@@ -20,11 +17,11 @@ def test_top_level_import():
 
 def test_exception_hierarchy():
     from opencrypto.core.exceptions import (
-        OpenCryptoError,
+        BacktestError,
         DataFetchError,
         ManipulationDetectedError,
+        OpenCryptoError,
         StrategyImplementationError,
-        BacktestError,
     )
     assert issubclass(DataFetchError, OpenCryptoError)
     assert issubclass(ManipulationDetectedError, OpenCryptoError)
@@ -38,8 +35,8 @@ def test_exception_hierarchy():
 
 def test_indicators_import():
     from opencrypto.indicators import (
-        sma, ema, rsi, macd, bollinger_bands, atr,
-        compute_all_indicators, detect_order_blocks,
+        detect_order_blocks,
+        sma,
     )
     assert callable(sma)
     assert callable(detect_order_blocks)
@@ -143,7 +140,7 @@ def test_shield_guard_direction_cap():
 # ── BaseStrategy protocol ──────────────────────────────────────────
 
 def test_base_strategy_protocol():
-    from opencrypto import BaseStrategy, StrategySignal
+    from opencrypto import BaseStrategy
 
     class DummyStrategy:
         name = "Test"

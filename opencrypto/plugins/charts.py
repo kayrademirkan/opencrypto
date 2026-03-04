@@ -10,7 +10,6 @@ from __future__ import annotations
 import logging
 import os
 from datetime import datetime
-from typing import Optional
 
 from opencrypto.core.config import DATA_DIR
 
@@ -23,7 +22,7 @@ async def generate_chart(
     df,
     signal: dict,
     trade_id: int | None = None,
-) -> Optional[str]:
+) -> str | None:
     """Generate a candlestick chart PNG. Returns file path or None."""
     try:
         import mplfinance as mpf

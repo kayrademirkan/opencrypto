@@ -12,14 +12,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
-import pandas as pd
 import httpx
+import pandas as pd
 
 from opencrypto.core.exceptions import DataFetchError
-from opencrypto.indicators.technical import compute_all_indicators, ema, rsi, supertrend
+from opencrypto.indicators.technical import compute_all_indicators
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +85,7 @@ class ShieldGuard:
             "sl_count": 0,
             "day_stopped": False,
         }
-        self._btc_cache: Optional[BTCGate] = None
+        self._btc_cache: BTCGate | None = None
         self._prev_btc_momentum: float = 0.0
         self._pump_exhausted_alerted: bool = False
 
@@ -220,7 +219,7 @@ class ShieldGuard:
     # ─── DAILY DRAWDOWN PROTECTION ───
 
     def _reset_daily_tracker(self):
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
         if self._daily_tracker["date"] != today:
             self._daily_tracker = {
                 "date": today,
