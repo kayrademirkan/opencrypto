@@ -14,15 +14,14 @@ Usage:
 
 import asyncio
 import logging
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from opencrypto.core.base_strategy import BaseStrategy, StrategySignal
-from opencrypto.indicators.technical import compute_all_indicators
-
 import pandas as pd
+
+from opencrypto.core.base_strategy import StrategySignal
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +75,7 @@ class SimpleMAStrategy:
                 leverage=3,
                 signal_type="ema_golden_cross",
                 reasons=[
-                    f"EMA9 crossed above EMA21",
+                    "EMA9 crossed above EMA21",
                     f"ADX: {adx_val:.0f} (trend strength)",
                     f"ATR: {atr_val:.4f}",
                 ],
@@ -98,7 +97,7 @@ class SimpleMAStrategy:
                 leverage=3,
                 signal_type="ema_death_cross",
                 reasons=[
-                    f"EMA9 crossed below EMA21",
+                    "EMA9 crossed below EMA21",
                     f"ADX: {adx_val:.0f} (trend strength)",
                     f"ATR: {atr_val:.4f}",
                 ],
