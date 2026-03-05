@@ -56,6 +56,9 @@ Thumbs.db
 *.pt
 *.onnx
 
+# ─── Launch / Marketing ───
+launch_materials/
+
 # ─── Claude/AI Agent ───
 .claude/settings.local.json
 mlidea/

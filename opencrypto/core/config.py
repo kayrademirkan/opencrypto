@@ -39,5 +39,5 @@ USE_TELEGRAM = bool(TELEGRAM_BOT_TOKEN)
 BINANCE_FUTURES_URL = "https://fapi.binance.com"
 BINANCE_SPOT_URL = "https://api.binance.com"
 
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
-DATA_DIR.mkdir(exist_ok=True)
+DATA_DIR = Path(os.getenv("OPENCRYPTO_DATA_DIR", Path.cwd() / "data"))
+DATA_DIR.mkdir(parents=True, exist_ok=True)

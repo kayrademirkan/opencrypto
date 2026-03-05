@@ -104,6 +104,8 @@ class ShieldGuard:
         hist = df.iloc[-50:]
         vol_mean = hist["volume"].mean()
         vol_std = hist["volume"].std()
+        if pd.isna(vol_std):
+            vol_std = 0.0
         spike = 0
 
         # 1. Volume spike

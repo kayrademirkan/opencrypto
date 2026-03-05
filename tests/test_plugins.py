@@ -35,5 +35,5 @@ def test_telegram_returns_bool():
 
     from opencrypto.plugins.telegram import send_telegram_message
 
-    result = asyncio.get_event_loop().run_until_complete(send_telegram_message("", chat_id=""))
+    result = asyncio.run(send_telegram_message("", chat_id=""))
     assert isinstance(result, bool)

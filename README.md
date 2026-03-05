@@ -95,8 +95,12 @@ async def main():
         days=30,
         top_n=50,
     )
-    print(f"Win Rate: {report['stats']['win_rate']}%")
-    print(f"Return: {report['stats']['total_return']}%")
+    stats = report.get("stats", {})
+    if stats:
+        print(f"Win Rate: {stats['win_rate']}%")
+        print(f"Return: {stats['total_return']}%")
+    else:
+        print("No trades generated")
 
 asyncio.run(main())
 ```
@@ -204,7 +208,7 @@ stats = pm.get_trade_stats()                # Win rate, PnL, R-units
 from opencrypto.indicators import compute_all_indicators, detect_swing_points
 
 df = await bridge.fetch_klines("BTCUSDT")
-df = compute_all_indicators(df)  # Adds 33 indicator columns
+df = compute_all_indicators(df)  # Adds 33+ columns from 29 indicators
 
 # Smart Money / ICT concepts
 swings = detect_swing_points(df)
@@ -257,7 +261,7 @@ class BollingerMeanReversion:
 ```
 
 **What your strategy gets for free:**
-- `df` comes pre-loaded with all 33 indicator columns
+- `df` comes pre-loaded with 33+ columns from all 29 indicators
 - `context` dict can include sentiment scores, orderbook data, MTF bias
 - ShieldGuard blocks manipulated signals before your strategy even sees them
 - PositionManager handles trailing SL, timeout, PnL tracking

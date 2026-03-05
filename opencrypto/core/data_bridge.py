@@ -165,44 +165,46 @@ class DataBridge:
         return await self.fetch_klines(symbol, "4h", limit)
 
     async def get_current_price(self, symbol: str) -> float | None:
-        """Get latest price for a symbol."""
+        """Get latest price for a symbol (Futures -> Spot failover)."""
         client = await _get_client()
         clean = symbol.replace(".P", "").upper()
-        try:
-            resp = await client.get(
-                f"{FAPI_URL}/fapi/v1/ticker/price",
-                params={"symbol": clean},
-            )
-            if resp.status_code == 200:
-                return float(resp.json()["price"])
-        except Exception as exc:
-            logger.debug("Price fetch failed for %s: %s", symbol, exc)
+        for base_url, path in [
+            (FAPI_URL, "/fapi/v1/ticker/price"),
+            (SPOT_URL, "/api/v3/ticker/price"),
+        ]:
+            try:
+                resp = await client.get(f"{base_url}{path}", params={"symbol": clean})
+                if resp.status_code == 200:
+                    return float(resp.json()["price"])
+            except Exception as exc:
+                logger.debug("Price fetch failed for %s from %s: %s", symbol, base_url, exc)
         return None
 
     async def get_orderbook_depth(self, symbol: str, depth: int = 20) -> dict:
-        """Fetch orderbook and compute bid/ask imbalance."""
+        """Fetch orderbook and compute bid/ask imbalance (Futures -> Spot failover)."""
         client = await _get_client()
         clean = symbol.replace(".P", "").upper()
-        try:
-            resp = await client.get(
-                f"{FAPI_URL}/fapi/v1/depth",
-                params={"symbol": clean, "limit": depth},
-            )
-            if resp.status_code != 200:
-                return {"imbalance": 0}
-            data = resp.json()
-            bid_vol = sum(float(b[1]) for b in data.get("bids", []))
-            ask_vol = sum(float(a[1]) for a in data.get("asks", []))
-            total = bid_vol + ask_vol
-            imbalance = (bid_vol - ask_vol) / total if total > 0 else 0
-            return {
-                "bid_volume": round(bid_vol, 2),
-                "ask_volume": round(ask_vol, 2),
-                "imbalance": round(imbalance, 4),
-            }
-        except Exception as exc:
-            logger.debug("Orderbook fetch failed for %s: %s", symbol, exc)
-            return {"imbalance": 0}
+        for base_url, path in [
+            (FAPI_URL, "/fapi/v1/depth"),
+            (SPOT_URL, "/api/v3/depth"),
+        ]:
+            try:
+                resp = await client.get(f"{base_url}{path}", params={"symbol": clean, "limit": depth})
+                if resp.status_code != 200:
+                    continue
+                data = resp.json()
+                bid_vol = sum(float(b[1]) for b in data.get("bids", []))
+                ask_vol = sum(float(a[1]) for a in data.get("asks", []))
+                total = bid_vol + ask_vol
+                imbalance = (bid_vol - ask_vol) / total if total > 0 else 0
+                return {
+                    "bid_volume": round(bid_vol, 2),
+                    "ask_volume": round(ask_vol, 2),
+                    "imbalance": round(imbalance, 4),
+                }
+            except Exception as exc:
+                logger.debug("Orderbook fetch failed for %s from %s: %s", symbol, base_url, exc)
+        return {"imbalance": 0}
 
     async def get_24h_stats(self, symbol: str) -> dict:
         """Get 24h ticker stats."""

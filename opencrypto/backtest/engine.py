@@ -583,7 +583,7 @@ async def run_backtest(
 
     if save:
         os.makedirs(BACKTEST_DIR, exist_ok=True)
-        fname = f"bt_{strategy.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        fname = f"bt_{strategy.name}_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.json"
         path = os.path.join(BACKTEST_DIR, fname)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(report, f, ensure_ascii=False, indent=2, default=str)

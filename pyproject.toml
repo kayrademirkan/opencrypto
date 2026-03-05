@@ -8,6 +8,7 @@ version = "1.0.0"
 description = "Modular algorithmic trading framework for crypto. Bring your own strategy."
 readme = "README.md"
 license = {text = "MIT"}
+authors = [{name = "Kayra Demirkan", email = "kayrademirkan@gmail.com"}]
 requires-python = ">=3.11"
 keywords = ["crypto", "trading", "algorithmic-trading", "framework", "backtesting", "binance"]
 classifiers = [
@@ -29,7 +30,6 @@ dependencies = [
 
 [project.optional-dependencies]
 charts = ["matplotlib>=3.8", "mplfinance>=0.12"]
-telegram = []
 llm = ["groq>=0.11"]
 all = ["matplotlib>=3.8", "mplfinance>=0.12", "groq>=0.11"]
 dev = [
