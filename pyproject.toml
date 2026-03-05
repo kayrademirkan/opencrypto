@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "opencrypto"
-version = "1.0.0"
+version = "1.0.1"
 description = "Modular algorithmic trading framework for crypto. Bring your own strategy."
 readme = "README.md"
 license = {text = "MIT"}

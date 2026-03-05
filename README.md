@@ -272,16 +272,23 @@ class BollingerMeanReversion:
 The backtest engine accepts **any** strategy that implements `BaseStrategy`:
 
 ```python
+import asyncio
 from opencrypto.backtest import run_backtest
 
-report = await run_backtest(
-    strategy=MyStrategy(),
-    symbols=["BTCUSDT", "ETHUSDT", "SOLUSDT"],  # or top_n=100
-    days=90,
-    initial_capital=1000.0,
-    risk_per_trade=0.02,       # 2% risk per trade
-    max_drawdown=50.0,         # Stop at 50% drawdown
-)
+async def main():
+    report = await run_backtest(
+        strategy=MyStrategy(),
+        symbols=["BTCUSDT", "ETHUSDT", "SOLUSDT"],  # or top_n=100
+        days=90,
+        initial_capital=1000.0,
+        risk_per_trade=0.02,       # 2% risk per trade
+        max_drawdown=50.0,         # Stop at 50% drawdown
+    )
+    stats = report.get("stats", {})
+    if stats:
+        print(f"Win Rate: {stats['win_rate']}%")
+
+asyncio.run(main())
 ```
 
 **Backtest features:**

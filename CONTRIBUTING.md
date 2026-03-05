@@ -17,11 +17,10 @@ pip install -e ".[all,dev]"
 | Branch   | Purpose                        |
 |----------|--------------------------------|
 | `main`   | Stable release — always green  |
-| `dev`    | Integration branch for PRs     |
 | `feat/*` | New features or modules        |
 | `fix/*`  | Bug fixes                      |
 
-Create your branch from `main`:
+Create your branch from `main` and open PRs against `main`:
 
 ```bash
 git checkout -b feat/my-feature main

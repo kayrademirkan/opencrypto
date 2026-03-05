@@ -1,17 +1,6 @@
-# OpenCrypto Framework Dependencies
+# OpenCrypto Framework — Core Dependencies
+# For optional extras, use: pip install -e ".[all]" or pip install -e ".[charts,llm]"
 python-dotenv>=1.0
 httpx>=0.27
 numpy>=2.0
 pandas>=2.1
-matplotlib>=3.8
-mplfinance>=0.12
-
-# Optional: FastAPI for REST API
-# fastapi>=0.115
-# uvicorn>=0.34
-
-# Optional: Groq AI for trade commentary
-# groq>=0.11
-
-# Optional: CryptoBERT for ML sentiment
-# transformers

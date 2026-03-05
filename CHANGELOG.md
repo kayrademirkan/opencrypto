@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] — 2025-03-04
+## [1.0.1] — 2026-03-05
+
+### Fixed
+
+- **DataBridge**: Spot failover added to `get_current_price` and `get_orderbook_depth` (previously Futures-only).
+- **ShieldGuard**: Guard against `NaN` `vol_std` in manipulation detection edge cases.
+- **config**: `DATA_DIR` now defaults to `cwd()/data` instead of package-relative path; configurable via `OPENCRYPTO_DATA_DIR` env var.
+- **backtest**: `datetime.now()` replaced with `datetime.now(UTC)` for consistent timezone handling.
+- **README**: Quickstart backtest example wrapped in `async`; indicator count clarified (29 functions → 33+ columns).
+- **pyproject.toml**: Added `authors` metadata; removed empty `telegram` optional dependency.
+- **tests**: Replaced deprecated `asyncio.get_event_loop().run_until_complete()` with `asyncio.run()`.
+
+## [1.0.0] — 2026-03-04
 
 Initial public release as a modular algorithmic trading framework.
 
@@ -47,4 +59,5 @@ Initial public release as a modular algorithmic trading framework.
 - PEP 561 `py.typed` marker for downstream type checking.
 - Community health files: CODE_OF_CONDUCT, CONTRIBUTING, SECURITY, issue/PR templates.
 
+[1.0.1]: https://github.com/kayrademirkan/opencrypto/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/kayrademirkan/opencrypto/releases/tag/v1.0.0
