@@ -18,12 +18,12 @@ logger = logging.getLogger(__name__)
 CHARTS_DIR = str(DATA_DIR / "charts")
 
 
-async def generate_chart(
+def generate_chart(
     df,
     signal: dict,
     trade_id: int | None = None,
 ) -> str | None:
-    """Generate a candlestick chart PNG. Returns file path or None."""
+    """Generate a candlestick chart PNG. Returns file path or None on failure."""
     try:
         import mplfinance as mpf
         import pandas as pd

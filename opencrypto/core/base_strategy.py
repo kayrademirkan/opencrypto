@@ -88,6 +88,8 @@ class StrategySignal:
             sym = f"{base}/USDT" if base else sym
         if not sym.endswith(".P"):
             sym += ".P"
+        elif sym.endswith(".P.P"):
+            sym = sym[:-2]
         return sym
 
     def to_dict(self) -> dict:

@@ -59,13 +59,13 @@ async def send_signal_message(signal: dict, ai_comment: str = "") -> bool:
 
     msg = (
         f"{dir_emoji} <b>{sym} — {direction}</b>\n\n"
-        f"📊 Tip: {sig_type}\n"
-        f"🎯 Güven: %{conf:.0f} | R:R {rr}\n"
-        f"⚡ Kaldıraç: {lev}x\n\n"
-        f"📍 Giriş: <code>{entry:.6g}</code>\n"
+        f"📊 Type: {sig_type}\n"
+        f"🎯 Confidence: {conf:.0f}% | R:R {rr}\n"
+        f"⚡ Leverage: {lev}x\n\n"
+        f"📍 Entry: <code>{entry:.6g}</code>\n"
         f"🛑 SL: <code>{sl:.6g}</code>\n"
         f"✅ TP: <code>{tp:.6g}</code>\n\n"
-        f"📋 Göstergeler:\n{reasons_text}\n"
+        f"📋 Reasons:\n{reasons_text}\n"
     )
 
     if ai_comment:

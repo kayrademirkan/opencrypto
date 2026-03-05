@@ -417,7 +417,8 @@ class ShieldGuard:
             self._btc_cache = gate
             return gate
 
-        except Exception:
+        except Exception as exc:
+            logger.warning("BTC gate fetch failed, using cache: %s", exc)
             if self._btc_cache is not None:
                 return self._btc_cache
             return BTCGate()

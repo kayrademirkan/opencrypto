@@ -336,7 +336,7 @@ await send_signal_message(signal.to_dict())
 
 # Charts
 from opencrypto.plugins.charts import generate_chart
-path = await generate_chart(df, signal.to_dict())
+path = generate_chart(df, signal.to_dict())
 
 # AI Commentary
 from opencrypto.plugins.llm import ai_comment

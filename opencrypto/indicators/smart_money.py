@@ -36,6 +36,7 @@ def _find_pivots(series: np.ndarray, left: int = 5, right: int = 5) -> list[tupl
 
 
 def detect_rsi_divergence(df: pd.DataFrame, lookback: int = 60) -> dict:
+    """Detect regular and hidden RSI divergence from price pivots."""
     result = {"bullish": False, "bearish": False, "hidden_bull": False, "hidden_bear": False, "detail": ""}
     if len(df) < lookback:
         return result
@@ -70,6 +71,7 @@ def detect_rsi_divergence(df: pd.DataFrame, lookback: int = 60) -> dict:
 
 
 def detect_order_blocks(df: pd.DataFrame, lookback: int = 30) -> list[dict]:
+    """Identify institutional order blocks from volume-impulse candle patterns."""
     blocks = []
     if len(df) < lookback + 5:
         return blocks
@@ -119,6 +121,7 @@ def detect_order_blocks(df: pd.DataFrame, lookback: int = 30) -> list[dict]:
 
 
 def detect_fvg(df: pd.DataFrame, lookback: int = 20) -> list[dict]:
+    """Detect Fair Value Gaps (imbalance zones) in recent price action."""
     gaps = []
     if len(df) < lookback + 3:
         return gaps
@@ -136,6 +139,7 @@ def detect_fvg(df: pd.DataFrame, lookback: int = 20) -> list[dict]:
 
 
 def detect_liquidity_sweep(df: pd.DataFrame) -> dict:
+    """Detect liquidity sweeps, equal highs/lows, and stop hunts."""
     result = {
         "bullish_sweep": False,
         "bearish_sweep": False,
@@ -217,6 +221,7 @@ def detect_liquidity_sweep(df: pd.DataFrame) -> dict:
 
 
 def detect_wyckoff_phase(df: pd.DataFrame) -> dict:
+    """Classify current market phase using Wyckoff methodology."""
     result = {"phase": "unknown", "detail": ""}
     if len(df) < 50:
         return result
@@ -247,7 +252,7 @@ def detect_wyckoff_phase(df: pd.DataFrame) -> dict:
     return result
 
 
-def detect_swing_points(df, left=3, right=3, lookback=60):
+def detect_swing_points(df: pd.DataFrame, left: int = 3, right: int = 3, lookback: int = 60) -> dict:
     result = {
         "swing_highs": [],
         "swing_lows": [],
@@ -305,7 +310,8 @@ def detect_swing_points(df, left=3, right=3, lookback=60):
     return result
 
 
-def detect_bos(df, swings=None):
+def detect_bos(df: pd.DataFrame, swings: dict | None = None) -> dict:
+    """Detect Break of Structure (BOS) and Change of Character (CHoCH)."""
     result = {
         "bullish_bos": False,
         "bearish_bos": False,
@@ -342,7 +348,8 @@ def detect_bos(df, swings=None):
     return result
 
 
-def detect_qml(df, swings=None):
+def detect_qml(df: pd.DataFrame, swings: dict | None = None) -> dict:
+    """Detect Quasimodo (QML) reversal patterns."""
     result = {"bullish_qml": False, "bearish_qml": False, "qml_level": 0.0, "detail": ""}
     if swings is None:
         swings = detect_swing_points(df)
@@ -371,7 +378,8 @@ def detect_qml(df, swings=None):
     return result
 
 
-def detect_fakeout(df):
+def detect_fakeout(df: pd.DataFrame) -> dict:
+    """Detect false breakout / fakeout patterns (wick, volume, trap variants)."""
     result = {"bullish_fakeout": False, "bearish_fakeout": False, "fakeout_type": "", "is_trap": False, "detail": ""}
     if len(df) < 25:
         return result
@@ -425,7 +433,8 @@ def detect_fakeout(df):
     return result
 
 
-def detect_sr_flip(df, swings=None):
+def detect_sr_flip(df: pd.DataFrame, swings: dict | None = None) -> dict:
+    """Detect Support-Resistance and Resistance-Support flips with retest quality."""
     result = {"sr_flip": False, "rs_flip": False, "flip_level": 0.0, "retest_quality": 0, "detail": ""}
     if swings is None:
         swings = detect_swing_points(df)
@@ -471,7 +480,8 @@ def detect_sr_flip(df, swings=None):
     return result
 
 
-def detect_compression(df):
+def detect_compression(df: pd.DataFrame) -> dict:
+    """Detect price compression (narrowing range + declining volume) before breakout."""
     result = {"compression": False, "compression_strength": 0, "bias": "neutral", "detail": ""}
     if len(df) < 25:
         return result

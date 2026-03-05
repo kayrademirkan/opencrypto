@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pandas as pd
 
-from opencrypto.core.base_strategy import StrategySignal
+from opencrypto import StrategySignal
 
 logger = logging.getLogger(__name__)
 

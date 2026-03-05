@@ -10,14 +10,17 @@ import pandas as pd
 
 
 def sma(series: pd.Series, period: int) -> pd.Series:
+    """Simple Moving Average over *period* bars."""
     return series.rolling(window=period).mean()
 
 
 def ema(series: pd.Series, period: int) -> pd.Series:
+    """Exponential Moving Average over *period* bars."""
     return series.ewm(span=period, adjust=False).mean()
 
 
 def rsi(series: pd.Series, period: int = 14) -> pd.Series:
+    """Relative Strength Index (Wilder's smoothing)."""
     delta = series.diff()
     gain = delta.where(delta > 0, 0.0)
     loss = (-delta).where(delta < 0, 0.0)
@@ -28,6 +31,7 @@ def rsi(series: pd.Series, period: int = 14) -> pd.Series:
 
 
 def macd(series: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9):
+    """MACD line, signal line, and histogram."""
     ema_fast = ema(series, fast)
     ema_slow = ema(series, slow)
     macd_line = ema_fast - ema_slow
@@ -37,6 +41,7 @@ def macd(series: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9):
 
 
 def bollinger_bands(series: pd.Series, period: int = 20, std_dev: float = 2.0):
+    """Bollinger Bands: upper, middle, lower, %B, bandwidth."""
     middle = sma(series, period)
     std = series.rolling(window=period).std()
     upper = middle + std_dev * std
@@ -47,6 +52,7 @@ def bollinger_bands(series: pd.Series, period: int = 20, std_dev: float = 2.0):
 
 
 def atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """Average True Range using Wilder's smoothing."""
     high, low, close = df["high"], df["low"], df["close"]
     tr = pd.concat(
         [
@@ -62,6 +68,7 @@ def atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
 def stochastic_rsi(
     series: pd.Series, rsi_period: int = 14, stoch_period: int = 14, k_smooth: int = 3, d_smooth: int = 3
 ) -> tuple[pd.Series, pd.Series]:
+    """Stochastic RSI (%K and %D lines)."""
     rsi_vals = rsi(series, rsi_period)
     rsi_min = rsi_vals.rolling(window=stoch_period).min()
     rsi_max = rsi_vals.rolling(window=stoch_period).max()
@@ -72,6 +79,7 @@ def stochastic_rsi(
 
 
 def adx(df: pd.DataFrame, period: int = 14) -> tuple[pd.Series, pd.Series, pd.Series]:
+    """Average Directional Index with DI+ and DI-."""
     high = df["high"]
     low = df["low"]
     plus_dm = high.diff()
@@ -87,11 +95,13 @@ def adx(df: pd.DataFrame, period: int = 14) -> tuple[pd.Series, pd.Series, pd.Se
 
 
 def obv(df: pd.DataFrame) -> pd.Series:
+    """On-Balance Volume."""
     direction = np.where(df["close"] > df["close"].shift(1), 1, np.where(df["close"] < df["close"].shift(1), -1, 0))
     return (df["volume"] * direction).cumsum()
 
 
 def vwap(df: pd.DataFrame) -> pd.Series:
+    """Volume-Weighted Average Price (session-cumulative)."""
     tp = (df["high"] + df["low"] + df["close"]) / 3
     cum_vol = df["volume"].cumsum()
     cum_tp_vol = (tp * df["volume"]).cumsum()
@@ -99,6 +109,7 @@ def vwap(df: pd.DataFrame) -> pd.Series:
 
 
 def ichimoku(df: pd.DataFrame) -> dict[str, pd.Series]:
+    """Ichimoku Cloud components: tenkan, kijun, senkou A/B, chikou."""
     high, low, close = df["high"], df["low"], df["close"]
     tenkan = (high.rolling(9).max() + low.rolling(9).min()) / 2
     kijun = (high.rolling(26).max() + low.rolling(26).min()) / 2
@@ -109,6 +120,7 @@ def ichimoku(df: pd.DataFrame) -> dict[str, pd.Series]:
 
 
 def volume_profile(df: pd.DataFrame, bins: int = 20) -> dict:
+    """Volume Profile: Point of Control, Value Area High/Low."""
     if len(df) < 20:
         mid = float(df["close"].iloc[-1]) if len(df) > 0 else 0
         return {"poc": mid, "vah": mid * 1.01, "val": mid * 0.99, "profile": []}
@@ -215,6 +227,7 @@ def dynamic_rsi_bands(series: pd.Series, rsi_period: int = 14, bb_period: int = 
 
 
 def find_support_resistance(df: pd.DataFrame, window: int = 20) -> dict:
+    """Find nearest support and resistance from recent highs/lows."""
     if len(df) < window:
         close = float(df["close"].iloc[-1]) if len(df) > 0 else 0
         return {"support": close * 0.98, "resistance": close * 1.02}
@@ -226,6 +239,7 @@ def find_support_resistance(df: pd.DataFrame, window: int = 20) -> dict:
 
 
 def kelly_criterion(win_rate: float, avg_win: float, avg_loss: float) -> float:
+    """Kelly Criterion optimal position size fraction (clamped 0-1)."""
     if avg_loss == 0 or win_rate <= 0:
         return 0.0
     b = abs(avg_win / avg_loss)
