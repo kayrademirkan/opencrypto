@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 from opencrypto.core.config import DATA_DIR
 
@@ -39,7 +39,7 @@ def generate_chart(
         sym = signal.get("symbol", "UNKNOWN")
         direction = signal.get("direction", "?")
 
-        fname = f"chart_{sym}_{trade_id or 'x'}_{datetime.now().strftime('%H%M%S')}.png"
+        fname = f"chart_{sym}_{trade_id or 'x'}_{datetime.now(UTC).strftime('%H%M%S')}.png"
         fpath = os.path.join(CHARTS_DIR, fname)
 
         entry = signal.get("entry", 0)

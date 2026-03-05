@@ -187,10 +187,10 @@ class ShieldGuard:
 
         # 8. Spread / gap analysis (spoofing sign)
         if len(df) >= 5:
+            avg_body = (hist["close"] - hist["open"]).abs().mean()
             for i in range(-4, 0):
                 if i + 1 <= -1:
                     gap = abs(df["open"].iloc[i + 1] - df["close"].iloc[i])
-                    avg_body = hist.apply(lambda r: abs(r["close"] - r["open"]), axis=1).mean()
                     if avg_body > 0 and gap > avg_body * 3:
                         result.risk_score += 10
                         result.warnings.append("Large gap — spoofing sign")

@@ -60,7 +60,6 @@ class Trade:
     pnl_r: float = 0.0
     time_to_event_bars: int = 0
     pnl_pct: float = 0.0
-    pnl_net_pct: float = 0.0
     confidence: float = 0.0
     rr_ratio: float = 0.0
     leverage: int = 1
